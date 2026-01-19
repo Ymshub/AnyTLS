@@ -2,7 +2,7 @@
 
 本仓库提供一个经过重写和增强的 AnyTLS-Go 一键安装脚本（install_anytls.sh），用于在常见 Linux 发行版上快速安装与管理 AnyTLS-Go 服务端（anytls-server）。脚本尽量兼容 Debian/Ubuntu、CentOS/RHEL、Alpine、Arch 等发行版，并实现自动下载匹配平台的 anytls-server 二进制、创建服务账号、systemd 单元、简单防火墙规则、以及可选的 Let's Encrypt TLS 集成。
 
-> 注意：本仓库仅包含安装脚本。anytls-server 二进制来自 upstream 仓库（anytls/anytls-go Releases），脚本会在安装时自动从其 Releases 下载对��平台的预编译包。
+> 注意：本仓库仅包含安装脚本。anytls-server 二进制来自 upstream 仓库（anytls/anytls-go Releases），脚本会在安装时自动从其 Releases 下载对平台的预编译包。
 
 ## 一键安装（推荐）
 
@@ -15,7 +15,7 @@ sudo ./install_anytls.sh
 ```
 
 该命令会：
-- 下载仓库根���录下的 install_anytls.sh（main 分支）
+- 下载仓库根目录下的 install_anytls.sh（main 分支）
 - 赋予执行权限
 - 使用 sudo 运行安装脚本（脚本会检测并提示需要 root 权限的操作）
 
@@ -116,7 +116,7 @@ sudo ./install_anytls.sh
   - 脚本会尝试调用第三方服务获取 IP（api.ipify.org、ifconfig.me 等）。如果失败，会提示你手动输入服务器公网 IP。
 
 - 未找到 anytls-server 可执行文件：
-  - 脚本从 Releases 下载的包可能与预期不同，检查 upstream Releases 是否提供对应平台的二进制���。
+  - 脚本从 Releases 下载的包可能与预期不同，检查 upstream Releases 是否提供对应平台的二进制。
   - 也可手动将 anytls-server 上传到 /usr/local/bin 并赋予执行权限，然后使用脚本的菜单或 systemctl 创建/启用服务。
 
 - certbot 申请证书失败：
@@ -142,7 +142,7 @@ sudo ./install_anytls.sh --uninstall
 ```
 该操作会停止服务、移除 systemd 单元、删除安装的二进制和 /etc/anytls 配置目录。请注意：脚本不会自动移除 anytls 用户的主目录（若创建）以及手动添加的防火墙持久化规则，必要时请手动检查与清理。
 
-## 开发���贡献
+## 开发贡献
 
 欢迎提交 issues 或 PR 来改进脚本：
 - 调整对更多发行版的兼容性（例如非 systemd 系统 OpenRC）
@@ -156,4 +156,3 @@ sudo ./install_anytls.sh --uninstall
 请在仓库根目录添加适当的 LICENSE 文件以声明使用许可（例如 MIT、Apache-2.0 等）。本 README 与脚本示例不含具体 LICENSE，务必在发布时补充。
 
 ---
-如果你希望我把这份 README.md 直接写入你的 Ymshub/AnyTLS 仓库并在 main 分支创建提交或 PR，我可以继续帮你准备提交内容（我将需要你允许我推送分支，或我会提供 Git 命令你本地执行）。另外我也可以把 README 翻译成英文或增加更详细的使用范例与截图（若需要）。欢迎告诉我下一步如何操作。
