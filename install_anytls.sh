@@ -854,11 +854,6 @@ if [ "$SHOW_MENU_MODE" = true ]; then
   show_menu
 fi
 
-# 检查更新
-if [ "$SKIP_UPDATE_CHECK" != true ]; then
-  check_for_updates
-fi
-
 # 1. 权限检查
 if [ "$(id -u)" -ne 0 ]; then
   log_error "此脚本需要以 root 用户权限运行"
