@@ -1302,7 +1302,7 @@ cd "$TEMP_DIR"
 wget -q --show-progress "$DOWNLOAD_URL" -O anytls.zip || log_error "下载失败"
 unzip -o anytls.zip > /dev/null
 install -m 755 anytls-server /usr/local/bin/anytls-server
-cd /# 操作完毕，离开临时目录
+cd /
 
 # 11. 创建服务所需用户
 id anytls &>/dev/null || useradd -r -s /usr/sbin/nologin -d /dev/null anytls
