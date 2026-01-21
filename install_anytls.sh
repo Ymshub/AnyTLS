@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# AnyTLS-Go 服务端一键安装脚本
+# AnyTLS-Go 服务端一键安装脚本 (v4.0.0 - 全面增强版)
 #
 # 功能:
 # - 支持更多系统: Ubuntu/Debian/CentOS/RHEL/Alpine
@@ -15,8 +15,8 @@
 # - 提供更新和状态监控功能
 
 # --- 版本信息 ---
-SCRIPT_VERSION="1.0.0"
-SCRIPT_DATE="2026-01-21"
+SCRIPT_VERSION="4.0.0"
+SCRIPT_DATE="2025-08-08"
 
 # --- 全局设置 ---
 # set -e: 如果命令失败，立即退出脚本
@@ -230,6 +230,27 @@ get_public_ip() {
   curl -s --max-time 10 https://icanhazip.com || \
   curl -s --max-time 10 https://ifconfig.me || \
   echo ""
+}
+
+# 检查版本更新
+check_for_updates() {
+  log_info "正在检查脚本更新..."
+  LATEST_VERSION=$(curl -s "https://raw.githubusercontent.com/Ymshub/AnyTLS/main/version.txt" | head -n1)
+  
+  if [ -n "$LATEST_VERSION" ] && [ "$LATEST_VERSION" != "$SCRIPT_VERSION" ]; then
+    log_info "发现新版本: $LATEST_VERSION (当前版本: $SCRIPT_VERSION)"
+    read -r -p "是否要升级到最新版本? (y/n): " upgrade_choice
+    if [[ "$upgrade_choice" =~ ^[Yy]$ ]]; then
+      log_info "正在下载最新版本..."
+      wget -O install_anytls_new.sh "https://raw.githubusercontent.com/Ymshub/AnyTLS/main/install_anytls.sh"
+      chmod +x install_anytls_new.sh
+      log_info "下载完成，正在执行最新版本的脚本..."
+      exec ./install_anytls_new.sh "$@"
+      # 这里不会继续执行，因为 exec 会替换当前进程
+    fi
+  else
+    log_info "当前已是最新版本: $SCRIPT_VERSION"
+  fi
 }
 
 # 生成二维码
@@ -852,6 +873,11 @@ fi
 # 如果是菜单模式，显示交互式菜单
 if [ "$SHOW_MENU_MODE" = true ]; then
   show_menu
+fi
+
+# 检查更新
+if [ "$SKIP_UPDATE_CHECK" != true ]; then
+  check_for_updates
 fi
 
 # 1. 权限检查
