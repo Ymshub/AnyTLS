@@ -1297,12 +1297,17 @@ log_info "下载链接: $DOWNLOAD_URL"
 
 # 10. 下载并安装
 TEMP_DIR=$(mktemp -d)
-chmod 700 "$TEMP_DIR"
-cd "$TEMP_DIR"
-wget -q --show-progress "$DOWNLOAD_URL" -O anytls.zip || log_error "下载失败"
+log_info "创建临时工作目录: ${TEMP_DIR}"
+cd "${TEMP_DIR}"
+
+log_info "正在下载文件..."
+wget -q --show-progress "${DOWNLOAD_URL}" -O anytls.zip
+log_info "下载完成，正在解压..."
 unzip -o anytls.zip > /dev/null
+
+log_info "正在安装二进制文件到 /usr/local/bin/ ..."
 install -m 755 anytls-server /usr/local/bin/anytls-server
-cd /
+cd / # 操作完毕，离开临时目录
 
 # 11. 创建服务所需用户
 id anytls &>/dev/null || useradd -r -s /usr/sbin/nologin -d /dev/null anytls
