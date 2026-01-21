@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# AnyTLS-Go 服务端一键安装脚本 (v1.0.0 - 全面增强版)
+# AnyTLS-Go 服务端一键安装脚本
 #
 # 功能:
 # - 支持更多系统: Ubuntu/Debian/CentOS/RHEL/Alpine
@@ -762,7 +762,7 @@ perform_uninstall() {
   fi
   
   # 下载并执行卸载脚本
-  wget -O uninstall_anytls.sh https://raw.githubusercontent.com/Ymshub/AnyTLS/main/install_anytls.sh
+  wget -O uninstall_anytls.sh https://raw.githubusercontent.com/Ymshub/AnyTLS/main/uninstall_anytls.sh
   chmod +x uninstall_anytls.sh
   ./uninstall_anytls.sh
   
