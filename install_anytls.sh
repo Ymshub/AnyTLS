@@ -469,7 +469,6 @@ get_public_ip() {
   curl -s --max-time 10 https://ipinfo.io/ip || \
   curl -s --max-time 10 https://api.ipify.org || \
   curl -s --max-time 10 https://icanhazip.com || \
-  curl -s --max-time 10 https://ifconfig.me || \
   echo ""
 }
 
@@ -1284,63 +1283,64 @@ if [ "$USE_TLS" = true ]; then
 fi
 
 # 9. 从 GitHub API 获取最新版本信息
-log_info "正在从 GitHub 获取最新版本信息..."
+log_info "获取最新版本..."
 API_URL="https://api.github.com/repos/anytls/anytls-go/releases/latest"
-API_RESPONSE=$(curl -sL --connect-timeout 10 --max-time 20 "${API_URL}")
+API_RESPONSE=$(curl -sL --connect-timeout 10 --max-time 30 "$API_URL")
+[ -z "$API_RESPONSE" ] && log_error "获取 GitHub API 失败"
 
-if [ -z "${API_RESPONSE}" ]; then
-  log_error "从 GitHub API (${API_URL}) 获取响应失败，请检查网络连接"
-fi
+DOWNLOAD_URL=$(echo "$API_RESPONSE" | grep "browser_download_url" | grep "$ARCH_TAG" | grep "\.zip\"" | cut -d'"' -f4 | head -n1)
+[ -z "$DOWNLOAD_URL" ] && log_error "未找到适配 $ARCH_TAG 的下载文件"
 
-DOWNLOAD_URL=$(echo "${API_RESPONSE}" | \
-  grep "browser_download_url" | \
-  grep "${ARCH_TAG}" | \
-  grep "\.zip\"" | \
-  cut -d'"' -f4 | \
-  head -n 1)
-
-if [ -z "${DOWNLOAD_URL}" ]; then
-  VERSION_TAG=$(echo "${API_RESPONSE}" | grep -oE '"tag_name":\s*".*?"' | cut -d'"' -f4)
-  log_error "在版本 [${VERSION_TAG:-未知}] 中未能找到适配 [${ARCH_TAG}] 的下载文件。请前往 'https://github.com/anytls/anytls-go/releases' 页面确认。"
-fi
-
-VERSION=$(echo "${DOWNLOAD_URL}" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
-log_info "成功定位到最新版本 v${VERSION}"
-log_info "下载链接: ${DOWNLOAD_URL}"
+VERSION=$(echo "$DOWNLOAD_URL" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+log_info "版本 v$VERSION"
+log_info "下载链接: $DOWNLOAD_URL"
 
 # 10. 下载并安装
 TEMP_DIR=$(mktemp -d)
-log_info "创建临时工作目录: ${TEMP_DIR}"
-cd "${TEMP_DIR}"
-
-log_info "正在下载文件..."
-wget -q --show-progress "${DOWNLOAD_URL}" -O anytls.zip
-log_info "下载完成，正在解压..."
+chmod 700 "$TEMP_DIR"
+cd "$TEMP_DIR"
+wget -q --show-progress "$DOWNLOAD_URL" -O anytls.zip || log_error "下载失败"
 unzip -o anytls.zip > /dev/null
-
-log_info "正在安装二进制文件到 /usr/local/bin/ ..."
 install -m 755 anytls-server /usr/local/bin/anytls-server
-cd / # 操作完毕，离开临时目录
+cd /# 操作完毕，离开临时目录
 
 # 11. 创建服务所需用户
-if ! id "anytls" &>/dev/null; then
-  log_info "创建专用的系统用户 'anytls' 用于运行服务..."
-  useradd -r -s /usr/sbin/nologin -d /dev/null anytls
-fi
+id anytls &>/dev/null || useradd -r -s /usr/sbin/nologin -d /dev/null anytls
 
 # ==============================
 # 12. 写入 systemd service 配置
 # ==============================
+mkdir -p /etc/anytls
+cat > /etc/anytls/anytls.env <<EOV
+PORT=$PORT
+PASSWORD=$PASSWORD
+EOV
+chown root:anytls /etc/anytls /etc/anytls/anytls.env
+chmod 0750 /etc/anytls
+chmod 0640 /etc/anytls/anytls.env
+
 cat > /etc/systemd/system/anytls.service <<EOF
 [Unit]
-Description=AnyTLS Service
-After=network.target
+Description=AnyTLS-Go Server
+After=network.target network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/anytls -c /etc/anytls/config.json
+User=anytls
+Group=anytls
+EnvironmentFile=/etc/anytls/anytls.env
+ExecStart=/usr/local/bin/anytls-server -l 0.0.0.0:\${PORT} -p \${PASSWORD}
 Restart=on-failure
 RestartSec=5
+LimitNPROC=10000
+LimitNOFILE=1000000
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/etc/anytls
+ProtectHome=yes
+PrivateDevices=yes
 
 [Install]
 WantedBy=multi-user.target
