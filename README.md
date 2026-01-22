@@ -1,199 +1,42 @@
 # AnyTLS-Go 一键安装脚本指南
 
+>  AnyTLS是一个试图专注于缓解 "TLS in TLS" 问题的 TLS 代理协议，主打极致隐匿。通过模拟正常的 HTTPS 流量来绕过防火墙检测，适合高封锁环境。
 
-## 🌟 主要功能
+> [!IMPORTANT]
+> 使用 `anytls-go` 搭建的服务端采用自签名证书，因此在客户端配置时，通常需要启用“允许不安全连接”或“跳过证书验证”等选项。
 
-- **全面的系统支持**
-  - Ubuntu/Debian 系列
-  - CentOS/RHEL/Rocky/Alma 系列
-  - Alpine Linux (适合容器化部署)
 
-- **智能端口管理**
-  - 自动检测端口占用情况
-  - 提供多种端口冲突解决方案
-  - 支持自定义或智能随机端口分配
+## 功能说明
 
-- **安全增强**
-  - 自动配置系统防火墙
-  - 可选 Let's Encrypt TLS 证书集成
-  - 非 root 用户运行服务，提升安全性
-
-- **用户友好界面**
-  - 交互式管理菜单
-  - 提供二维码便于快速配置客户端
-  - 故障排除向导，快速解决常见问题
-
-- **维护便利**
-  - 实时状态监控和日志分析
-  - 在线版本检查与更新提示
-  - 兼容性检查与升级建议
+1. 一键部署：支持 Debian / Ubuntu / CentOS / RHEL / AlmaLinux / Rocky Linux，自动检测环境并安装依赖
+2. 服务管理：一键启动、停止、重启服务，查看运行状态与日志
+3. 配置修改：快速更改连接密码与服务端口，自动更新配置文件并重载服务
+4. 卸载功能：一键彻底卸载 AnyTLS 与相关配置
+5. 高性能支持：基于 AnyTLS 协议，提供低延迟、高速、安全的代理通道，适用于科学上网、远程访问
+6. 兼容 arm64 和 amd64 系统架构
 
 ---
 
-## 📦 快速开始
+## 快速开始
 
-### 基础安装
-
-```bash
-wget -O install_anytls.sh https://raw.githubusercontent.com/Ymshub/AnyTLS/main/install_anytls.sh && chmod +x install_anytls.sh && sudo ./install_anytls.sh
-```
-
-### 高级安装选项
+### 一键安装
 
 ```bash
-# 指定端口和密码
-sudo ./install_anytls.sh --port 8443 --password your_secure_password
-
-# 启用 TLS 证书
-sudo ./install_anytls.sh --tls
-
-# 显示管理菜单
-sudo ./install_anytls.sh --menu
-
-# 查看所有选项
-sudo ./install_anytls.sh --help
+bash <(curl -fsSL https://raw.githubusercontent.com/Ymshub/AnyTLS/main/AnyTLS.sh)
 ```
 
 ### 管理命令
 
 ```bash
-# 更新到最新版本
-sudo ./install_anytls.sh --update
-
-# 查看当前状态
-sudo ./install_anytls.sh --check-status
-
-# 卸载服务
-wget -O uninstall_anytls.sh https://raw.githubusercontent.com/Ymshub/AnyTLS/main/uninstall_anytls.sh && chmod +x uninstall_anytls.sh && sudo ./uninstall_anytls.sh
+anytls
 ```
 
 ---
 
-## ⚙️ 智能端口冲突处理
+## 官方资料
 
-最新版本添加了智能端口冲突处理机制，可以：
+### [AnyTLS原仓库](https://github.com/anytls/anytls-go)
 
-- 自动检测端口是否被占用
-- 显示占用端口的进程信息
-- 提供多种解决方案：
-  1. 尝试释放端口（终止占用进程）
-  2. 自动查找其他可用端口
-  3. 手动指定新端口
+### [AnyTLS官方FAQ](https://github.com/anytls/anytls-go/blob/main/docs/faq.md)
 
-这确保了安装过程顺畅，避免了因端口冲突导致的安装失败。
-
----
-
-## 🛡️ 多系统防火墙配置
-
-脚本可以根据不同的操作系统自动配置防火墙规则：
-
-| 操作系统 | 防火墙工具 | 配置方式 |
-|---------|-----------|---------|
-| Ubuntu/Debian | UFW | 自动添加规则并启用 |
-| CentOS/RHEL | Firewalld | 添加永久规则并重载 |
-| Alpine | iptables | 添加规则并尝试持久化 |
-
----
-
-## 🔧 服务管理
-
-### 系统服务命令
-
-```bash
-# 查看状态
-systemctl status anytls
-
-# 启动服务
-systemctl start anytls
-
-# 停止服务
-systemctl stop anytls
-
-# 重启服务
-systemctl restart anytls
-
-# 查看日志
-journalctl -u anytls -f --no-pager
-```
-
-### 交互式管理菜单
-
-```bash
-sudo ./install_anytls.sh --menu
-```
-
-菜单提供以下功能：
-- 安装/更新/卸载服务
-- 查看服务状态和连接信息
-- 配置 TLS 证书和防火墙
-- 查看日志和故障排除
-
----
-
-## 🔒 TLS 证书配置
-
-脚本支持自动申请和配置 Let's Encrypt 免费 TLS 证书：
-
-```bash
-sudo ./install_anytls.sh --tls
-```
-
-或在安装后通过菜单配置：
-
-```bash
-sudo ./install_anytls.sh --menu
-# 选择选项 6) 配置 Let's Encrypt 证书
-```
-
-证书将自动续期，确保服务始终使用有效证书。
-
----
-
-## 📱 客户端连接
-
-### 连接信息
-
-安装完成后，服务器会显示连接信息，包括：
-- 服务器 IP 地址
-- 端口
-- 密码
-- 连接字符串
-- 二维码（可直接扫描导入客户端）
-
-也可以随时查看连接信息：
-
-```bash
-sudo ./install_anytls.sh --menu
-# 选择选项 5) 查看连接信息
-```
-
-### 客户端设置说明
-
-- 使用 Let's Encrypt 证书时，客户端无需跳过证书验证
-- 使用自签名证书时，客户端需启用跳过证书验证选项
-- 使用脚本生成的连接字符串可快速配置客户端
-
----
-
-## 🛠️ 故障排除
-
-如果遇到问题，可以使用内置的故障排除向导：
-
-```bash
-sudo ./install_anytls.sh --menu
-# 选择选项 9) 故障排除向导
-```
-
-向导可以帮助解决以下问题：
-- 服务无法启动（包括端口冲突解决）
-- 无法连接到服务
-- 防火墙配置问题
-- TLS 证书问题
-- 性能问题
-
----
-
-## 📖 项目源
-
-AnyTLS-Go 项目: [https://github.com/anytls/anytls-go](https://github.com/anytls/anytls-go)  
+### [AnyTLS协议说明](https://github.com/anytls/anytls-go/blob/main/docs/protocol.md)
